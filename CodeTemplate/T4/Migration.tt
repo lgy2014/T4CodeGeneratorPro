@@ -1,0 +1,54 @@
+﻿<#@ template language="C#" #>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace <#= NameSpace #>
+{
+    class <#=ClassName #>:IMigration
+    {
+        public void Create(string connectionString)
+        {
+			StringBuilder createBuilder = new StringBuilder(500);
+            createBuilder.AppendLine("CREATE TABLE <#= Table.name #> (");
+<#  foreach (var item in Columns)
+	   {
+		   string identity = string.Empty;
+		if (item.is_identity)
+		{
+			identity = " IDENTITY(1,1)";
+		}
+
+		string notNull = string.Empty;
+        if (!item.is_nullable)
+        {
+            notNull = " NOT NULL";
+        }
+		string column_max="("+item.max+")";
+        if (string.IsNullOrEmpty(item.collation_name))
+        {
+			column_max=string.Empty;
+        }
+	   #>
+			createBuilder.AppendLine("\t <#=item.name#> <#=item.user_type#><#=column_max#> <#= notNull #> <#= identity #>,");
+<#} #>
+            int len = Environment.NewLine.Length + 1;
+            createBuilder.Remove(createBuilder.Length - len, len);//移除最后一个逗号。
+<# if (SysIndexClumns != null && SysIndexClumns.Length > 0)
+  {#>
+			createBuilder.Append("\t,PRIMARY KEY(");
+<# 
+	foreach (var item in SysIndexClumns)
+{#>
+            createBuilder.Append("<#= item.column #>,");
+<#} #>
+			createBuilder.Remove(createBuilder.Length - 1, 1);//移除最后一个逗号。
+			createBuilder.Append(")");
+<#}#>
+            createBuilder.AppendLine(");");
+            string sql = createBuilder.ToString();
+			WebCommon.SqlDBHelper.ExecuteNonQuery(connectionString, sql, commandType: System.Data.CommandType.Text);
+        }
+    }
+}

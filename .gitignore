@@ -1,0 +1,14 @@
+obj
+bin
+App_Data/Logs
+.nuget
+*.suo
+TestResults
+packages
+*.user
+.vs
+/lgynode/node_modules
+/LgyFramework/_Lib/jquery-easyui-1.5
+/LgyFramework/.nuget
+/T4CodeGeneratorPro/NuGet.targets
+/Lgy/Lgy.Web/App_Data/Logs

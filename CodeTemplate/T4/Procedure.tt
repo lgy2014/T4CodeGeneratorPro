@@ -1,0 +1,22 @@
+﻿<#@ template language="C#" #>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace <#= NameSpace #>
+{
+    class <#= ClassName #>:IStoredProcedure
+    {
+        public void Proc(string connectionString)
+        {
+            StringBuilder sqlBuilder = new StringBuilder(1000);
+<#foreach (string line in SqlLines)
+{#>
+			sqlBuilder.AppendLine("<#= line #>");
+<#}#>
+            string sql = sqlBuilder.ToString();
+            WebCommon.SqlDBHelper.ExecuteNonQuery(connectionString, sql, System.Data.CommandType.Text);
+        }
+    }
+}

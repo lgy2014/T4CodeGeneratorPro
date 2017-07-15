@@ -1,0 +1,42 @@
+﻿<#@ template language="C#" #>
+<#@ import namespace="System.Data" #>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace <#= NameSpace #>
+{
+    class <#= ClassName #>:ISeedData
+    {
+        public void Seed(string connectionString)
+        {
+            StringBuilder sqlBuilder = new StringBuilder(1000);
+			sqlBuilder.Append("INSERT INTO <#=Table.name #>(");
+<# 
+foreach (var item in Columns)
+{#>
+			sqlBuilder.Append("<#= item.name #>,");
+<#} #>
+            sqlBuilder.Remove(sqlBuilder.Length - 1, 1);
+            sqlBuilder.Append(")Values");
+<# 
+foreach (DataRow row in DataTable.Rows)
+{#>
+			sqlBuilder.AppendLine("(");
+<#foreach (var col in Columns)
+    {
+		string val = GetVal(col,row);
+	#>
+			sqlBuilder.Append("<#= val #>,");
+<#}#>
+			sqlBuilder.Remove(sqlBuilder.Length - 1, 1);
+			sqlBuilder.Append("),");
+<#}#>
+			sqlBuilder.Remove(sqlBuilder.Length - 1, 1);
+            sqlBuilder.Append(";");
+            string sql = sqlBuilder.ToString();
+            WebCommon.SqlDBHelper.ExecuteNonQuery(connectionString, sql, System.Data.CommandType.Text);
+        }
+    }
+}
